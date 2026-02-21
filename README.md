@@ -34,9 +34,6 @@ templates/
   call-transcript-summarizer/
     README.md              Setup guide
     workflows/             1 importable workflow JSON file
-scripts/
-  scrub-workflow.js        Automated PII scrubbing tool
-  generalize-prompts.js    Prompt generalization tool
 ```
 
 ## License

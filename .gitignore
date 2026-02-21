@@ -137,3 +137,9 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Scrubbing scripts (contain PII mappings)
+scripts/
+
+# Working notes
+propmt.txt
