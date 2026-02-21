@@ -6,7 +6,7 @@
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "YOUR_WEBHOOK_ID",
+        "path": "YOUR_WEBHOOK_PATH",
         "options": {}
       },
       "id": "9c7bcb2b-fda6-49c0-ad2d-060504bf20f7",

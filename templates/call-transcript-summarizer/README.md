@@ -40,7 +40,9 @@ In the "Format Transcript" code node, update the `EMPLOYEE_NAMES` map with your 
 ```javascript
 const EMPLOYEE_NAMES = {
   'YOUR_EMPLOYEE_1_USER_ID': 'Employee 1',
-  'YOUR_EMPLOYEE_2_USER_ID': 'Employee 2'
+  'YOUR_EMPLOYEE_2_USER_ID': 'Employee 2',
+  'YOUR_EMPLOYEE_3_USER_ID': 'Employee 3',
+  'YOUR_EMPLOYEE_4_USER_ID': 'Employee 4'
   // Add more employees here
 };
 ```
@@ -54,7 +56,9 @@ The system prompt in the "Summarize Call" node contains `{{}}` markers:
 | Marker | Replace With |
 |--------|-------------|
 | `{{YOUR_BUSINESS_NAME}}` | Your business name |
-| `{{YOUR_BUSINESS_DESCRIPTION}}` | Brief business description |
+| `{{YOUR_SERVICES_SUMMARY}}` | Brief summary of services offered |
+| `{{YOUR_CITY}}` | Your city name |
+| `{{YOUR_SALES_REP}}` | Sales rep name |
 
 The summary structure (sections, formatting rules) can be customized to match your sales process.
 
