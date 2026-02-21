@@ -1,0 +1,392 @@
+{
+  "id": "TEMPLATE_WORKFLOW_ID",
+  "name": "Call Transcript Summarizer",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "YOUR_WEBHOOK_PATH",
+        "options": {}
+      },
+      "id": "cc3e01f5-5a01-46ad-89f0-426e059dcd8f",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "YOUR_WEBHOOK_ID"
+    },
+    {
+      "parameters": {
+        "url": "https://services.leadconnectorhq.com/conversations/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $json.body.contact_id }}"
+            },
+            {
+              "name": "locationId",
+              "value": "={{ $json.body.location.id }}"
+            },
+            {
+              "name": "limit",
+              "value": "1"
+            },
+            {
+              "name": "sortBy",
+              "value": "last_message_date"
+            },
+            {
+              "name": "sort",
+              "value": "desc"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-04-15"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "aa7e2288-61e9-4cbe-86e1-b7fa6f841524",
+      "name": "Find Conversation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        224,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "YOUR_GHL_CREDENTIAL_ID",
+          "name": "GHL API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://services.leadconnectorhq.com/conversations/{{ $json.conversations[0].id }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "5"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-04-15"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "03db9bbd-f769-4f9a-9092-a295a79106fb",
+      "name": "Get Latest Call Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        448,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "YOUR_GHL_CREDENTIAL_ID",
+          "name": "GHL API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://services.leadconnectorhq.com/conversations/locations/{{ $json.locationId }}/messages/{{ $json.messageId }}/transcription",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-04-15"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c56935dc-9632-4d2d-82bd-198cef42a8b4",
+      "name": "Get Transcript",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        896,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "YOUR_GHL_CREDENTIAL_ID",
+          "name": "GHL API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=<transcript_context>\nThe transcript below is a phone conversation between {{ $json.employeeName }} (the {{YOUR_BUSINESS_NAME}} representative) and {{ $json.customerName }} (the customer inquiring about services).\n</transcript_context>\n\n<transcript>\n{{ $json.fullTranscript }}\n</transcript>",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=<role>\nYou are a call summarization assistant for {{YOUR_BUSINESS_NAME}} - a {{YOUR_SERVICES_SUMMARY}} company in {{YOUR_CITY}} specializing in {{YOUR_SERVICES_SUMMARY}}.\n</role>\n\n<task>\nCreate a focused call summary and follow-up SMS draft for the sales team. Assume the rep already understands {{YOUR_BUSINESS_NAME}}'s services and packages - focus on THIS customer's specific situation, needs, and conversation dynamics.\n</task>\n\n<summary_structure>\n⛵ SERVICE & CONTEXT\n• Vehicle/asset details (type, size, condition)\n• Context that matters (e.g., storage, condition, usage patterns, ownership timeline)\n\n🎯 GOALS & PRIORITIES\n• Customer's desired outcome with protection\n• Specific concerns or questions they raised\n\n💰 OFFER & PRICING\n• PACKAGE NAME: $PRICE\n• Customer specific details related to offer (Skip package details - rep knows what's included)\n• Any comparison shopping mentioned\n\n➡️ NEXT STEPS\n• Concrete follow-up plan with dates\n• Current decision status\n\n📊 PERFORMANCE NOTES\nSTRENGTHS:\n• 2-3 specific strengths from this call\n\nPOTENTIAL IMPROVEMENTS:\n• 2-3 concrete improvement opportunities with brief reasoning\n\n💬 FOLLOW-UP SMS DRAFT\nWrite with Alex Hormozi closer mindset:\n- Assumptive language (\"when we get started\" not \"if you decide\")\n- Create urgency (limited spots, schedule filling up)\n- Direct ask for commitment (\"Can I lock in [day/time] for your appointment?\")\n- Remove friction (make booking the path of least resistance)\n- Reference 1 specific detail from call to maintain warmth\n- 3-4 sentences maximum, end with clear yes/no question\n\nTONE: Confident and direct, not pushy. Assume they're doing this, just need to confirm when.\n</summary_structure>\n\n<key_principles>\n• Focus on customer-specific details and conversation dynamics\n• Be specific in feedback (not \"good rapport\" but \"effectively used the 'seasonal' angle\")\n• Always use • bullets (never dashes -)\n• Use ALL CAPS for section headers and package names for emphasis\n• Never use **asterisks** or special unicode characters - they cause encoding issues in GHL\n</key_principles>"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1344,
+        0
+      ],
+      "id": "59739951-5ad4-439f-84bc-5d0eb996966b",
+      "name": "Summarize Call"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the LLM response (now plain text, not JSON)\nconst response = $input.first().json.text || $input.first().json.response;\n\n// Get contact data\nconst findConvNode = $('Find Conversation').first().json;\nconst contactId = findConvNode.conversations[0].contactId;\n\nconst callDate = new Date().toLocaleDateString('en-US', { \n  month: 'short', \n  day: 'numeric', \n  year: 'numeric' \n});\n\nreturn {\n  json: {\n    contact_id: contactId,\n    formatted_note: `📞 Call Summary (${callDate})\\n\\n${response}`\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1696,
+        0
+      ],
+      "id": "d13cb8af-1361-4012-b133-93d1eccee2f7",
+      "name": "Parse & Format",
+      "notes": "Parses LLM JSON output and formats for GHL notes"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://services.leadconnectorhq.com/contacts/{{ $json.contact_id }}/notes",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Version",
+              "value": "2021-04-15"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "body",
+              "value": "={{ $json.formatted_note }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8a107d56-8e71-41a9-8b86-a2326eda35fd",
+      "name": "Add to Contact Notes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1920,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "YOUR_GHL_CREDENTIAL_ID",
+          "name": "GHL API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Employee lookup map - add your team's GHL user IDs and names\nconst EMPLOYEE_NAMES = {\n  'YOUR_EMPLOYEE_4_USER_ID': '{{YOUR_SALES_REP}}',\n  'YOUR_EMPLOYEE_1_USER_ID': 'Employee 2',\n  'YOUR_EMPLOYEE_5_USER_ID': 'Employee 2',\n  'YOUR_EMPLOYEE_6_USER_ID': 'Employee 3'\n  // Add more employees here as they join\n};\n\n// Get names from available data\nconst webhookData = $('Webhook Trigger').first().json.body;\nconst extractMessageData = $('Extract MessageID').first().json;\n\n// Get employee name from userId (from Extract MessageID node)\nconst userId = extractMessageData.userId;\nconst employeeName = EMPLOYEE_NAMES[userId] || 'Team Rep';\n\n// Get customer first name from webhook\nconst customerName = webhookData.customData?.first_name || 'Customer';\n\n// Get all transcript items as an array\nconst transcript = $input.all().map(item => item.json);\n\n// Combine consecutive messages from same speaker and clean markers\nlet consolidated = [];\nlet currentSpeaker = null;\nlet currentText = [];\n\ntranscript.forEach(item => {\n  // mediaChannel 1 = Customer, mediaChannel 2 = Team Rep\n  const speaker = item.mediaChannel === 1 ? customerName : employeeName;\n  \n  const cleanText = item.transcript\n    .replace(/\\[laugh\\]/g, '')\n    .replace(/\\[hes\\]/g, '')\n    .replace(/\\[noise\\]/g, '')\n    .replace(/\\s+/g, ' ')\n    .trim();\n  \n  if (!cleanText) return;\n  \n  if (speaker === currentSpeaker) {\n    currentText.push(cleanText);\n  } else {\n    if (currentSpeaker !== null) {\n      consolidated.push(`${currentSpeaker}: ${currentText.join(' ')}`);\n    }\n    currentSpeaker = speaker;\n    currentText = [cleanText];\n  }\n});\n\n// Add final speaker's text\nif (currentSpeaker !== null) {\n  consolidated.push(`${currentSpeaker}: ${currentText.join(' ')}`);\n}\n\nconst fullTranscript = consolidated.join('\\n\\n');\n\nreturn {\n  json: {\n    fullTranscript: fullTranscript,\n    employeeName: employeeName,  \n    customerName: customerName \n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "36d8516d-f842-44bf-a514-b55c3b2c3398",
+      "name": "Format Transcript"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-chat-latest",
+          "mode": "list",
+          "cachedResultName": "gpt-5-chat-latest"
+        },
+        "responsesApiEnabled": false,
+        "options": {
+          "frequencyPenalty": 0.2,
+          "presencePenalty": 0.2,
+          "temperature": 0.3,
+          "maxRetries": 2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1424,
+        224
+      ],
+      "id": "e7eab402-e9cb-401f-8ee5-b3ab30bf3f77",
+      "name": "GPT-5-Chat",
+      "credentials": {
+        "openAiApi": {
+          "id": "YOUR_OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const messages = $input.item.json.messages.messages;\n\nif (!messages || messages.length === 0) {\n  throw new Error('No messages found in conversation');\n}\n\n// Find call message (should be most recent)\nconst callTypes = ['TYPE_CALL', 'TYPE_IVR_CALL', 'TYPE_CUSTOM_CALL'];\nconst callMessage = messages.find(m => callTypes.includes(m.messageType));\n\nif (!callMessage) {\n  throw new Error('No call message found - webhook may have fired incorrectly');\n}\n\nreturn {\n  json: {\n    messageId: callMessage.id,\n    locationId: callMessage.locationId,\n    userId: callMessage.userId || null  \n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "b75203ae-d88a-4a69-81bb-e6638d310e54",
+      "name": "Extract MessageID"
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Find Conversation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Conversation": {
+      "main": [
+        [
+          {
+            "node": "Get Latest Call Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Latest Call Message": {
+      "main": [
+        [
+          {
+            "node": "Extract MessageID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Transcript": {
+      "main": [
+        [
+          {
+            "node": "Format Transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize Call": {
+      "main": [
+        [
+          {
+            "node": "Parse & Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse & Format": {
+      "main": [
+        [
+          {
+            "node": "Add to Contact Notes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Transcript": {
+      "main": [
+        [
+          {
+            "node": "Summarize Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT-5-Chat": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarize Call",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract MessageID": {
+      "main": [
+        [
+          {
+            "node": "Get Transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "errorWorkflow": ""
+  }
+}
