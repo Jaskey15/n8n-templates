@@ -51,16 +51,11 @@ Find employee user IDs via the GHL API (`/users/` endpoint) or by inspecting cal
 
 ### 4. Customize the Summarization Prompt
 
-The system prompt in the "Summarize Call" node contains `{{}}` markers:
+The system prompt in the "Summarize Call" node provides a high-level summary structure (Service & Context, Goals, Pricing, Next Steps, Performance Notes, Follow-Up SMS). Customize it to match your sales process:
 
-| Marker | Replace With |
-|--------|-------------|
-| `{{YOUR_BUSINESS_NAME}}` | Your business name |
-| `{{YOUR_SERVICES_SUMMARY}}` | Brief summary of services offered |
-| `{{YOUR_CITY}}` | Your city name |
-| `{{YOUR_SALES_REP}}` | Sales rep name |
-
-The summary structure (sections, formatting rules) can be customized to match your sales process.
+- Adjust the summary sections to fit the information your team cares about
+- Modify the follow-up SMS tone and style to match your brand
+- Add any formatting constraints specific to your CRM (e.g., character limits, encoding restrictions)
 
 ### 5. Set Up GHL Webhook
 

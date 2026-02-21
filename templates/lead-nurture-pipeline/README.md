@@ -137,34 +137,19 @@ Search each workflow for these placeholders and replace with your values:
 
 ### 8. Customize LLM Prompts
 
-Each dispatcher and reply workflow contains a system prompt with `{{}}` template markers:
+Each dispatcher and reply workflow contains a system prompt describing the AI's role, goals, style, and behavioral rules. These prompts are intentionally high-level, documenting the *pattern* (qualify then hand off, nurture without being pushy, etc.) rather than prescribing business-specific details.
 
-| Marker | Replace With |
-|--------|-------------|
-| `{{YOUR_AI_AGENT_NAME}}` | Your AI assistant's name |
-| `{{YOUR_BUSINESS_NAME}}` | Your business name |
-| `{{YOUR_BUSINESS_TAGLINE}}` | Brief tagline (e.g., "Austin's premier service company") |
-| `{{YOUR_SERVICES_SUMMARY}}` | Summary of services offered |
-| `{{YOUR_BUSINESS_ADDRESS}}` | Physical address |
-| `{{YOUR_BUSINESS_HOURS}}` | Operating hours |
-| `{{YOUR_CITY}}` | Your city name |
-| `{{YOUR_DOMAIN}}` | Your website domain |
-| `{{YOUR_SALES_REP}}` | Sales rep name for handoffs |
-| `{{YOUR_SALES_REP_ROLE}}` | Sales rep title |
-| `{{YOUR_EMPLOYEE_NAME}}` | Employee name(s) used in prompts |
-| `{{YOUR_SISTER_COMPANY}}` | Sister company name (or remove section) |
-| `{{YOUR_SISTER_COMPANY_SERVICES}}` | Sister company services description |
-| `{{YOUR_INSTAGRAM_URL}}` | Instagram URL |
-| `{{YOUR_WEBSITE_URL}}` | Website URL |
-| `{{YOUR_SERVICE_AREA}}` | Geographic service area |
-| `{{YOUR_EXPERIENCE_CLAIM}}` | Years of experience |
-| `{{YOUR_ASSET_TYPE}}` | Primary asset type (e.g., "motorcycles", "boats") |
-| `{{YOUR_SERVICE_TYPE}}` | Service type label (e.g., "ceramic coating") |
-| `{{YOUR_SERVICE_NAME}}` | Service name label (e.g., "detailing") |
-| `{{YOUR_SERVICE_CATEGORY_1}}` | First service category in catalog |
-| `{{YOUR_SERVICE_CATEGORY_2}}` | Second service category in catalog |
+To make them yours:
 
-Also replace the `<services_reference>` skeleton with your actual service catalog and update the `<examples>` block with conversations relevant to your business.
+1. **Add your business context** - business name, team members, location, hours, and any relevant details
+2. **Add your service catalog** - list your services, packages, and pricing so the AI can reference them
+3. **Add conversation examples** - include 3-5 examples showing how you want the AI to handle common scenarios (new lead, pricing question, decline, handoff)
+4. **Add business-specific rules** - service area restrictions, excluded services, sister companies, etc.
+
+The prompts preserve key behavioral signals that the workflow routing depends on:
+- `##HANDOFF##` - triggers sales rep handoff flow
+- `##NO-REPLY##` - signals conversation end (no SMS sent)
+- `##STOP##` - signals excluded service (initial reachout only)
 
 ### 9. Configure GHL Webhooks
 

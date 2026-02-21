@@ -14,8 +14,9 @@ Production-tested n8n workflow templates for CRM automation, AI-powered lead nur
 1. Pick a template from the table above
 2. Read its README for prerequisites and setup steps
 3. Import the `.json` workflow files into your n8n instance
-4. Search for `YOUR_` and `{{` placeholders and replace with your values
-5. Configure credentials and activate
+4. Search for `YOUR_` placeholders in workflow nodes and replace with your values
+5. Customize LLM system prompts with your business details, service catalog, and examples
+6. Configure credentials and activate
 
 ## Prerequisites
 
