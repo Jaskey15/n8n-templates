@@ -149,7 +149,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=<transcript_context>\nThe transcript below is a phone conversation between {{ $json.employeeName }} (the {{YOUR_BUSINESS_NAME}} representative) and {{ $json.customerName }} (the customer inquiring about services).\n</transcript_context>\n\n<transcript>\n{{ $json.fullTranscript }}\n</transcript>",
+        "text": "=<transcript_context>\nThe transcript below is a phone conversation between {{ $json.employeeName }} (the sales representative) and {{ $json.customerName }} (the customer inquiring about services).\n</transcript_context>\n\n<transcript>\n{{ $json.fullTranscript }}\n</transcript>",
         "messages": {
           "messageValues": [
             {
